@@ -1,3 +1,4 @@
+using System.IO; 
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,11 +7,14 @@ using UnityEngine.UI;
 
 public class MainManager : MonoBehaviour
 {
+    public static MainManager Instance; 
+
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text HighscoreText; 
     public GameObject GameOverText;
     
     private bool m_Started = false;
@@ -18,10 +22,13 @@ public class MainManager : MonoBehaviour
     
     private bool m_GameOver = false;
 
-    
+    public string playerName;
+    public int highscore;
+
     // Start is called before the first frame update
     void Start()
     {
+
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -36,6 +43,8 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        HighscoreText.text = $"Best Score : {SaveHandler.Instance.highscoreHolder} : {SaveHandler.Instance.highscore}"; 
     }
 
     private void Update()
@@ -72,5 +81,23 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+
+        if(m_Points > SaveHandler.Instance.highscore)
+        {
+            SaveHandler.Instance.highscore = m_Points;
+            SaveHandler.Instance.highscoreHolder = SaveHandler.Instance.playerName;
+            SaveHandler.Instance.SaveGame(); 
+        }
+    }
+
+    public void ExitToMenu()
+    {
+        if (m_Points > SaveHandler.Instance.highscore)
+        {
+            SaveHandler.Instance.highscore = m_Points;
+            SaveHandler.Instance.highscoreHolder = SaveHandler.Instance.playerName;
+            SaveHandler.Instance.SaveGame();
+        }
+        SceneManager.LoadScene(0); 
     }
 }
